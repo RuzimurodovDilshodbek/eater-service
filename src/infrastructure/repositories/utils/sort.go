@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"github.com/RuzimurodovDilshodbek/eater-service/scr/domain/address/models"
 	"gorm.io/gorm"
 )
 

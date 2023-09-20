@@ -22,10 +22,7 @@ type addressSvcImpl struct {
 	logger      *zap.Logger
 }
 
-func NewAddressService(
-	addressRepo repositories.AddressRepository,
-	logger *zap.Logger,
-) AddressService {
+func NewAddressService(addressRepo repositories.AddressRepository, logger *zap.Logger) AddressService {
 	return &addressSvcImpl{
 		addressRepo: addressRepo,
 		logger:      logger,
@@ -47,15 +44,10 @@ func (s *addressSvcImpl) CreateAddress(ctx context.Context, addressID, EaterID, 
 		UpdatedAt: time.Now().UTC(),
 	}
 
-	err := s.addressRepo.WithTx(ctx, func(r repositories.AddressRepository) error {
-		if err := r.CreateAddress(ctx, address); err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
+	if err := s.addressRepo.CreateAddress(ctx, address); err != nil {
 		return nil, err
 	}
+
 	return address, nil
 }
 
@@ -74,28 +66,17 @@ func (s *addressSvcImpl) UpdateAddress(ctx context.Context, addressID, EaterID, 
 		UpdatedAt: time.Now().UTC(),
 	}
 
-	err := s.addressRepo.WithTx(ctx, func(r repositories.AddressRepository) error {
-		if err := r.UpdateAddress(ctx, address); err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
+	if err := s.addressRepo.UpdateAddress(ctx, address); err != nil {
 		return nil, err
 	}
+
 	return address, nil
 }
 
 func (s *addressSvcImpl) DeleteAddress(ctx context.Context, addressID string) error {
-	err := s.addressRepo.WithTx(ctx, func(r repositories.AddressRepository) error {
-		if err := r.DeleteAddress(ctx, addressID); err != nil {
-			return err
-		}
-		return nil
-	})
 
-	if err != nil {
-		return err
+	if err := s.addressRepo.DeleteAddress(ctx, addressID); err != nil {
+		return nil
 	}
 
 	return nil

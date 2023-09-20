@@ -30,23 +30,23 @@ func NewAddressApplicationService(
 
 func (s *addressAppSvcImpl) CreateAddress(ctx context.Context, addressID, EaterID, name string, Latitude, Longitude float64) (*dtos.SaveAddressResponse, error) {
 	if addressID == "" {
-		return nil, errors.New("address is is required!")
+		return nil, errors.New("address is required!")
 	}
 
 	if EaterID == "" {
-		return nil, errors.New("EaterID is is required!")
+		return nil, errors.New("EaterID is required!")
 	}
 
 	if name == "" {
-		return nil, errors.New("name is is required!")
+		return nil, errors.New("name is required!")
 	}
 
 	if Latitude == 0 {
-		return nil, errors.New("Latitude is is required!")
+		return nil, errors.New("Latitude is required!")
 	}
 
 	if Longitude == 0 {
-		return nil, errors.New("Longitude is is required!")
+		return nil, errors.New("Longitude is required!")
 	}
 
 	result, err := s.CreateAddress(ctx, addressID, EaterID, name, Latitude, Longitude)
@@ -59,23 +59,23 @@ func (s *addressAppSvcImpl) CreateAddress(ctx context.Context, addressID, EaterI
 
 func (s *addressAppSvcImpl) UpdateAddress(ctx context.Context, addressID, EaterID, name string, Latitude, Longitude float64) (*dtos.SaveAddressResponse, error) {
 	if addressID == "" {
-		return nil, errors.New("address is is required!")
+		return nil, errors.New("address is required!")
 	}
 
 	if EaterID == "" {
-		return nil, errors.New("EaterID is is required!")
+		return nil, errors.New("EaterID is required!")
 	}
 
 	if name == "" {
-		return nil, errors.New("name is is required!")
+		return nil, errors.New("name is required!")
 	}
 
 	if Latitude == 0 {
-		return nil, errors.New("Latitude is is required!")
+		return nil, errors.New("Latitude is required!")
 	}
 
 	if Longitude == 0 {
-		return nil, errors.New("Longitude is is required!")
+		return nil, errors.New("Longitude is required!")
 	}
 
 	result, err := s.UpdateAddress(ctx, addressID, EaterID, name, Latitude, Longitude)
@@ -88,7 +88,7 @@ func (s *addressAppSvcImpl) UpdateAddress(ctx context.Context, addressID, EaterI
 
 func (s *addressAppSvcImpl) DeleteAddress(ctx context.Context, addressID string) error {
 	if addressID == "" {
-		return errors.New("addressID is is required!")
+		return errors.New("addressID is required!")
 	}
 
 	err := s.DeleteAddress(ctx, addressID)
@@ -101,7 +101,7 @@ func (s *addressAppSvcImpl) DeleteAddress(ctx context.Context, addressID string)
 
 func (s *addressAppSvcImpl) GetAddressById(ctx context.Context, addressID string) (*dtos.SaveAddressResponse, error) {
 	if addressID == "" {
-		return nil, errors.New("addressID is is required!")
+		return nil, errors.New("addressID is required!")
 	}
 
 	result, err := s.GetAddressById(ctx, addressID)
@@ -115,7 +115,7 @@ func (s *addressAppSvcImpl) GetAddressById(ctx context.Context, addressID string
 
 func (s *addressAppSvcImpl) ListAddressByEaterId(ctx context.Context, eaterID string) ([]*dtos.ListAddressByEaterIdResponse, error) {
 	if eaterID == "" {
-		return nil, errors.New("eaterID is is required!")
+		return nil, errors.New("eaterID is required!")
 	}
 
 	result, err := s.ListAddressByEaterId(ctx, eaterID)
