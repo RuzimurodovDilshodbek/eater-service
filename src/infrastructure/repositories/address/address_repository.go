@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	tableAddress = "adress.adress"
+	tableAddress = "eater.adress"
 )
 
 type addressRepoImpl struct {
@@ -22,60 +22,51 @@ func NewRepository(db *gorm.DB) repositories.AddressRepository {
 	}
 }
 
-func (r *addressRepoImpl) WithTx(ctx context.Context, f func(r repositories.AddressRepository) error) error {
-	if err := r.db.Transaction(func(tx *gorm.DB) error {
-		r := addressRepoImpl{
-			db: tx,
-		}
-		if err := f(&r); err != nil {
-			return err
-		}
-		return nil
-	}); err != nil {
-		return err
-	}
-	return nil
+func (r *addressRepoImpl) GetAddressTable(ctx context.Context) *gorm.DB {
+	return r.db.WithContext(ctx).Table(tableAddress)
 }
 
-func (r *addressRepoImpl) CreateAddress(ctx context.Context, address *models.Address) error {
-	result := r.db.WithContext(ctx).Table(tableAddress).Create(address)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
+func (r *addressRepoImpl) SaveAddress(ctx context.Context, address *models.Address) error {
+	
+	result := r.GetAddressTable(ctx).Create(&address)
+	
+	return result.Error
+
 }
 
 func (r *addressRepoImpl) UpdateAddress(ctx context.Context, address *models.Address) error {
-	result := r.db.WithContext(ctx).Table(tableAddress).Save(address)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
+	result := r.GetAddressTable(ctx).Save(&address)
+
+	return result.Error
 }
 
-func (r *addressRepoImpl) DeleteAddress(ctx context.Context, id string) error {
-	var address models.Address
-	result := r.db.WithContext(ctx).Table(tableAddress).Delete(&address, "id = ?", id)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
+func (r *addressRepoImpl) DeleteAddress(ctx context.Context, addressId string) error {
+
+	result := r.GetAddressTable(ctx).Delete("id = ?", addressId)
+
+	return result.Error
 }
 
-func (r *addressRepoImpl) GetAddressById(ctx context.Context, id string) (*models.Address, error) {
-	var address models.Address
-	result := r.db.WithContext(ctx).Table(tableAddress).First(&address, "id = ?", id)
+func (r *addressRepoImpl) GetAddressById(ctx context.Context, addressId string) (*models.Address, error) {
+	var address *models.Address
+	result := r.GetAddressTable(ctx).First(address, addressId)
+
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &address, nil
-}
 
-func (r *addressRepoImpl) ListAddressByEaterId(ctx context.Context, eaterID string) ([]*models.Address, error) {
-	var address []*models.Address
-	result := r.db.WithContext(ctx).Table(tableAddress).Where(address, "eater_id = ?", eaterID)
-	if result.Error != nil {
-		return nil, result.Error
-	}
 	return address, nil
+}
+
+func (r *addressRepoImpl) ListAddressByEater(ctx context.Context, eaterID string, sort string, page, pageSize int) ([]*models.Address, error) {
+	var addresses []*models.Address
+
+	result := r.db.WithContext(ctx).Table(tableAddress).Where("eater_id = ?", eaterID)
+	
+	result.Scopes(utils.SortByCreatedAt(page, pageSize), utils.Sort(sort)).Find(&addresses)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return addresses, nil
 }

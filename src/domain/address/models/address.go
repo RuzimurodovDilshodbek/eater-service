@@ -3,8 +3,8 @@ package models
 import "time"
 
 type Location struct {
-	Longitude float64
-	Latitude  float64
+	Longitude float64 `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
 }
 type Address struct {
 	ID        string    `json:"id" gorm:"primaryKey"`

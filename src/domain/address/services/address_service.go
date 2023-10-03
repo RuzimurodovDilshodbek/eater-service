@@ -6,6 +6,7 @@ import (
 
 	"github.com/RuzimurodovDilshodbek/eater-service/src/domain/address/models"
 	"github.com/RuzimurodovDilshodbek/eater-service/src/domain/address/repositories"
+	"github.com/RuzimurodovDilshodbek/eater-service/src/infrastructure/rand"
 	"go.uber.org/zap"
 )
 
@@ -19,13 +20,11 @@ type AddressService interface {
 
 type addressSvcImpl struct {
 	addressRepo repositories.AddressRepository
-	logger      *zap.Logger
 }
 
 func NewAddressService(addressRepo repositories.AddressRepository, logger *zap.Logger) AddressService {
 	return &addressSvcImpl{
 		addressRepo: addressRepo,
-		logger:      logger,
 	}
 }
 
@@ -36,7 +35,7 @@ func (s *addressSvcImpl) CreateAddress(ctx context.Context, addressID, EaterID, 
 	}
 
 	address := &models.Address{
-		ID:        addressID,
+		ID:        rand.UUID(),
 		EaterID:   EaterID,
 		Name:      name,
 		Location:  location,
@@ -44,7 +43,9 @@ func (s *addressSvcImpl) CreateAddress(ctx context.Context, addressID, EaterID, 
 		UpdatedAt: time.Now().UTC(),
 	}
 
-	if err := s.addressRepo.CreateAddress(ctx, address); err != nil {
+	err := s.addressRepo.SaveAddress(ctx, address)
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -62,24 +63,21 @@ func (s *addressSvcImpl) UpdateAddress(ctx context.Context, addressID, EaterID, 
 		EaterID:   EaterID,
 		Name:      name,
 		Location:  location,
-		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	}
 
-	if err := s.addressRepo.UpdateAddress(ctx, address); err != nil {
+	err := s.addressRepo.UpdateAddress(ctx, address)
+
+	if err != nil {
 		return nil, err
 	}
 
 	return address, nil
 }
 
-func (s *addressSvcImpl) DeleteAddress(ctx context.Context, addressID string) error {
+func (s *addressSvcImpl) DeleteAddress(ctx context.Context, addressId string) error {
 
-	if err := s.addressRepo.DeleteAddress(ctx, addressID); err != nil {
-		return nil
-	}
-
-	return nil
+	return s.addressRepo.DeleteAddress(ctx, addressId)
 }
 
 func (s *addressSvcImpl) GetAddressById(ctx context.Context, addressID string) (*models.Address, error) {
@@ -93,8 +91,7 @@ func (s *addressSvcImpl) GetAddressById(ctx context.Context, addressID string) (
 }
 
 func (s *addressSvcImpl) ListAddressByEaterId(ctx context.Context, eaterID string) ([]*models.Address, error) {
-	addresses, err := s.addressRepo.ListAddressByEaterId(ctx, eaterID)
-
+	addresses, err := s.addressRepo.ListAddressByEater(ctx, eaterID, sort, page, pageSize)
 	if err != nil {
 		return nil, err
 	}
