@@ -5,6 +5,7 @@ import (
 
 	"github.com/RuzimurodovDilshodbek/eater-service/src/domain/address/models"
 	"github.com/RuzimurodovDilshodbek/eater-service/src/domain/address/repositories"
+	"github.com/RuzimurodovDilshodbek/eater-service/src/infrastructure/utils"
 	"gorm.io/gorm"
 )
 
@@ -63,7 +64,7 @@ func (r *addressRepoImpl) ListAddressByEater(ctx context.Context, eaterID string
 
 	result := r.db.WithContext(ctx).Table(tableAddress).Where("eater_id = ?", eaterID)
 	
-	result.Scopes(utils.SortByCreatedAt(page, pageSize), utils.Sort(sort)).Find(&addresses)
+	result.Scopes(utils.Paginate(page, pageSize), utils.Sort(sort)).Find(&addresses)
 
 	if result.Error != nil {
 		return nil, result.Error

@@ -6,38 +6,13 @@ import (
 
 	"github.com/RuzimurodovDilshodbek/eater-service/src/domain/order/models"
 	"github.com/RuzimurodovDilshodbek/eater-service/src/domain/order/repositories"
+	"github.com/RuzimurodovDilshodbek/eater-service/src/infrastructure/rand"
 )
 
 type OrderService interface {
-	CreateAddress(
-		ctx context.Context,
-		Instruction,
-		EaterID,
-		RestaurantID,
-		Status,
-		PaymentStatus,
-		OrderItemID,
-		ProductID,
-		Name string,
-		Quantity,
-		Price,
-		TotalPrice int,
-	) (*models.Order, error)
-	UpdateAddress(
-		ctx context.Context,
-		Instruction,
-		EaterID,
-		RestaurantID,
-		Status,
-		PaymentStatus,
-		OrderItemID,
-		ProductID,
-		Name string,
-		Quantity,
-		Price,
-		TotalPrice int,
-	) (*models.Order, error)
-	DeleteAddress(ctx context.Context, orderID string) error
+	SaveOrder(ctx context.Context, eaterID string, cart *models.Cart) (*models.Order, error)
+	UpdateOrder(ctx context.Context, order *models.Order) (*models.Order, error) 
+	DeleteOrder(ctx context.Context, orderID string) error
 	GetOrderById(ctx context.Context, orderID string) (*models.Order, error)
 	ListOrderByEaterId(ctx context.Context, eaterID string) ([]*models.Order, error)
 }
@@ -54,113 +29,97 @@ func NewOrderService(
 	}
 }
 
-func (s *orderSvcImpl) CreateOrder(
-	ctx context.Context,
-	Instruction,
-	EaterID,
-	RestaurantID,
-	Status,
-	PaymentStatus,
-	OrderItemID,
-	ProductID,
-	Name string,
-	Quantity,
-	Price,
-	TotalPrice int,
-) (*models.Order, error) {
-	orderItem[] := models.OrderItem{
-		ID:         OrderItemID,
-		ProductID:  ProductID,
-		Name:       Name,
-		Quantity:   Quantity,
-		Price:      Price,
-		TotalPrice: TotalPrice,
-		CreatedAt:  time.Now().UTC(),
-	}
+func (s *orderSvcImpl) SaveOrder(ctx context.Context, eaterID string, cart *models.Cart) (*models.Order, error) {
 
+	var (
+	  now = time.Now()
+	)
+  
+	restaurant := &models.RestaurantInfo{
+	  Name:     cart.Restaurant.Name,
+	  ImageUrl: cart.Restaurant.ImageUrl,
+	}
+  
+	address := &models.AddressInfo{
+	  ID:        cart.Delivery.AddressID,
+	  Name:      cart.Delivery.Address.Name,
+	  Longitude: cart.Delivery.Address.Longitude,
+	  Latitude:  cart.Delivery.Address.Latitude,
+	}
+  
+	delivery := &models.DeliveryInfo{
+	  AddressID: address.ID,
+	  Address:   address,
+	  Time:      cart.Delivery.Time,
+	  Notes:     cart.Delivery.Notes,
+	}
+  
+	payment := &models.PaymentInfo{
+	  Method:        cart.Payment.Method,
+	  CardID:        cart.Payment.CardID,
+	  DeliveryPrice: cart.Payment.DeliveryPrice,
+	  TotalPrice:    cart.Payment.TotalPrice,
+	}
+	orderItems := []*models.OrderItem{}
+  
+	for key, b := range cart.Items {
+  
+	  orderItems[key] = &models.OrderItem{
+		ID:         rand.UUID(),
+		ProductID:  b.ProductID,
+		Price:      b.ProductPrice,
+		Quantity:   b.Quantity,
+		TotalPrice: b.ProductPrice + b.Quantity,
+		CreatedAt:  now,
+	  }
+	}
+  
 	order := &models.Order{
-		EaterID:       EaterID,
-		Instruction:   Instruction,
-		RestaurantID:  RestaurantID,
-		Items:         orderItem,
-		Status:        Status,
-		PaymentStatus: PaymentStatus,
-		CreatedAt:     time.Now().UTC(),
-		UpdatedAt:     time.Now().UTC(),
+	  ID:            rand.UUID(),
+	  EaterID:       eaterID,
+	  Instruction:   cart.Instruction,
+	  RestaurantID:  cart.RestaurantID,
+	  Restaurant:    restaurant,
+	  Delivery:      delivery,
+	  Items:         orderItems,
+	  Payment:       payment,
+	  PaymentStatus: models.PaymentStatusPending,
+	  Status:        models.OrderStatusPending,
+	  CreatedAt:     now,
+	  UpdatedAt:     now,
 	}
-
-	err := s.orderRepo.WithTx(ctx, func(r *repositories.OrderRepository) error {
-		if err := r.CreateOrder(ctx, order); err != nil {
-			return err
-		}
-		return nil
+  
+	err := s.orderRepo.WithTx(ctx, func(r repositories.OrderRepository) error {
+  
+	
+  
+	  if err := r.CreateOrder(ctx, order); err != nil {
+		return err
+	  }
+	  return nil
 	})
+  
 	if err != nil {
-		return nil, err
+	  return nil, err
 	}
-	return address, nil
-}
+  
+	return order, nil
+  }
 
-func (s *orderSvcImpl) UpdateOrder(
-	ctx context.Context,
-	Instruction,
-	EaterID,
-	RestaurantID,
-	Status,
-	PaymentStatus,
-	OrderItemID,
-	ProductID,
-	Name string,
-	Quantity,
-	Price,
-	TotalPrice int,
-) (*models.Order, error) {
-	orderItem := models.OrderItem{
-		ID:         OrderItemID,
-		ProductID:  ProductID,
-		Name:       Name,
-		Quantity:   Quantity,
-		Price:      Price,
-		TotalPrice: TotalPrice,
-		CreatedAt:  time.Now().UTC(),
-	}
 
-	order := &models.Order{
-		EaterID:       EaterID,
-		Instruction:   Instruction,
-		RestaurantID:  RestaurantID,
-		Items:         orderItem,
-		Status:        Status,
-		PaymentStatus: PaymentStatus,
-		CreatedAt:     time.Now().UTC(),
-		UpdatedAt:     time.Now().UTC(),
-	}
-
-	err := s.orderRepo.WithTx(ctx, func(r *repositories.OrderRepository) error {
-		if err := r.UpdateAddress(ctx, order); err != nil {
-			return err
+func (s *orderSvcImpl) UpdateOrder(ctx context.Context, order *models.Order) (*models.Order, error) {
+		err := s.orderRepo.UpdateOrder(ctx, order)
+		if err != nil {
+			return nil, err
 		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return address, nil
+		return order, nil
 }
 
 func (s *orderSvcImpl) DeleteOrder(ctx context.Context, orderID string) error {
-	err := s.addressRepo.WithTx(ctx, func(r repositories.OrderRepository) error {
-		if err := r.DeleteOrder(ctx, orderID); err != nil {
+		if err := s.orderRepo.DeletoOrder(ctx, orderID); err != nil {
 			return err
 		}
 		return nil
-	})
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (s *orderSvcImpl) GetOrderById(ctx context.Context, orderID string) (*models.Order, error) {
@@ -173,8 +132,8 @@ func (s *orderSvcImpl) GetOrderById(ctx context.Context, orderID string) (*model
 	return order, nil
 }
 
-func (s *addressSvcImpl) ListOrderByEaterId(ctx context.Context, eaterID string) ([]*models.Order, error) {
-	addresses, err := s.addressRepo.ListOrderByEaterId(ctx, eaterID)
+func (s *orderSvcImpl) ListOrderByEaterId(ctx context.Context, eaterID string) ([]*models.Order, error) {
+	addresses, err := s.orderRepo.ListOrderByEaterId(ctx, eaterID)
 
 	if err != nil {
 		return nil, err

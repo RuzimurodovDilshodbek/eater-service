@@ -78,7 +78,7 @@ func (r *eaterRepoImpl) GetEaterByPhoneNumber(ctx context.Context, phoneNumber s
 func (r *eaterRepoImpl) SaveEaterSmsCode(ctx context.Context, smsCode *models.EaterSmsCode) error {
 	result := r.db.WithContext(ctx).Table(tableEaterSmsCodes).Create(smsCode)
 	if result.Error != nil {
-		return result.Eater
+		return result.Error
 	}
 	return nil
 

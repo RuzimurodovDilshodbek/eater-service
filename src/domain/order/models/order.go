@@ -36,6 +36,7 @@ type AddressInfo struct {
 	Latitude  float64 `json:"latitude"`
 }
 type DeliveryInfo struct {
+	AddressID string `json:"address_id"`
 	Address *AddressInfo `json:"address"`
 	Time    string       `json:"time"`
 	Notes   string       `json:"notes"`
@@ -46,3 +47,22 @@ type PaymentInfo struct {
 	DeliveryPrice int
 	TotalPrice    int
 }
+
+const (
+	SortByCreatedAtAsc  = "created_at_asc"
+	SortByCreatedAtDesc = "created_at_desc"
+)
+
+const (
+	// start Order statuses
+	OrderStatusPending = "pending"
+	OrderStatusConfirmed = "confirmed"
+	OrderStatusDeclined = "declined"
+	OrderStatusCanceled = "canceled"
+	// end Order statuses 
+	// start Payment statuses
+	PaymentStatusPending = "pending"
+	PaymentStatusPaid = "paid"
+	PaymentStatusFailed = "failed"
+	// end Payment statuses 
+  )

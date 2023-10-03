@@ -15,7 +15,7 @@ type AddressService interface {
 	UpdateAddress(ctx context.Context, addressID, EaterID, name string, Latitude, Longitude float64) (*models.Address, error)
 	DeleteAddress(ctx context.Context, addressID string) error
 	GetAddressById(ctx context.Context, addressID string) (*models.Address, error)
-	ListAddressByEaterId(ctx context.Context, eaterID string) ([]*models.Address, error)
+	ListAddressByEaterId(ctx context.Context, eaterID, sort string, page, pageSize int) ([]*models.Address, error)
 }
 
 type addressSvcImpl struct {
@@ -90,7 +90,7 @@ func (s *addressSvcImpl) GetAddressById(ctx context.Context, addressID string) (
 	return address, nil
 }
 
-func (s *addressSvcImpl) ListAddressByEaterId(ctx context.Context, eaterID string) ([]*models.Address, error) {
+func (s *addressSvcImpl) ListAddressByEaterId(ctx context.Context, eaterID, sort string, page, pageSize int) ([]*models.Address, error) {
 	addresses, err := s.addressRepo.ListAddressByEater(ctx, eaterID, sort, page, pageSize)
 	if err != nil {
 		return nil, err

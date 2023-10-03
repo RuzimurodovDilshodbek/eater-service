@@ -16,7 +16,7 @@ import (
 
 type EaterService interface {
 	SignupEater(ctx context.Context, phoneNumber string) (string, error)
-	ConfirmSMSCode(ctx context.Context, eaterID, smsCode string) (*models.EaterProfile, error)
+	ConfirmSMSCode(ctx context.Context, eaterID, code string) (*models.EaterProfile, error)
 	GetEaterProfile(ctx context.Context, eaterID string) (*models.EaterProfile, error)
 	UpdateEaterProfile(ctx context.Context, eaterID, name, imageUrl string) (*models.EaterProfile, error)
 }
@@ -54,15 +54,26 @@ func (s *eaterSvcImpl) SignupEater(ctx context.Context, phoneNumber string) (str
 	return s.handleNewEater(ctx, phoneNumber)
 }
 
-func (s *eaterSvcImpl) ConfirmSMSCode(ctx context.Context, eaterID, smsCode string) (*models.EaterProfile, error) {
-	smsCode, err := s.eaterRepo.GetEaterSmsCode(ctx, eaterID, smsCode)
-	if err != nil {
-		return nil, err
-	}
-	if smsCode.IsExpired() {
-		return nil, errors.New("code is expired")
-	}
-	return nil, nil
+func (s *eaterSvcImpl) ConfirmSMSCode(ctx context.Context, eaterID, code string) (*models.EaterProfile, error) {
+	smsCode, err := s.eaterRepo.GetEaterSmsCode(ctx, eaterID, code)
+  if err != nil {
+    return nil, err
+  }
+
+  if smsCode.ID == 0 {
+    return nil, errors.New("code was not found")
+  }
+
+  profile, err := s.eaterRepo.GetEaterProfile(ctx, eaterID)
+   if err != nil {
+	return nil, err
+   }
+
+  if err := s.eaterRepo.UpdateEaterProfilePhoneNumberConfirmed(ctx, eaterID, true); err != nil {
+    return nil, err
+  }
+
+  return profile, nil
 }
 
 func (s *eaterSvcImpl) GetEaterProfile(ctx context.Context, eaterID string) (*models.EaterProfile, error) {

@@ -55,13 +55,13 @@ func (r *ratingRepoImpl) UpdateRatingRestaurant(ctx context.Context, rating *mod
 }
 
 func (r *ratingRepoImpl) ListRatingByEaterId(ctx context.Context, eaterID string) ([]*models.RestaurantRating, error) {
-	var rating []models.RestaurantRating
+	var rating []*models.RestaurantRating
 	result := r.db.WithContext(ctx).Table(tableRestaurantRating).Where(&rating, "eater_id = ?", eaterID)
 
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &rating, nil
+	return rating, nil
 }
 
 func (r *ratingRepoImpl) RateDelivery(ctx context.Context, delivery *models.DeliveryRating) error {

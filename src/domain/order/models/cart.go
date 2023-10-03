@@ -15,6 +15,7 @@ type Cart struct {
 	} `json:"restaurant"`
 	Delivery struct {
 		AddressID string `json:"address_id"`
+		Address *AddressInfo `json:"address"`
 		Time      string `json:"time"`
 		Notes     string `json:"notes"`
 	} `json:"delivery"`

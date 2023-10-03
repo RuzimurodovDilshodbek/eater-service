@@ -64,15 +64,15 @@ func (r *orderRepoImpl) GetOrderById(ctx context.Context, order_id string) (*mod
 }
 
 func (r *orderRepoImpl) ListOrderByEaterId(ctx context.Context, eater_id string) ([]*models.Order, error) {
-	var order []models.Order
+	var order []*models.Order
 	result := r.db.WithContext(ctx).Table(tableOrder).Where(&order, "eater_id = ?", eater_id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &address, nil
+	return order, nil
 }
 
-func (r *orderRepoImpl) DeleteOrder(ctx context.Context, id string) error {
+func (r *orderRepoImpl) DeletoOrder(ctx context.Context, id string) error {
 	var order models.Order
 	result := r.db.WithContext(ctx).Table(tableOrder).Delete(&order, "id = ?", id)
 	if result.Error != nil {

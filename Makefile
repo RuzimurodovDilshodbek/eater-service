@@ -1,7 +1,7 @@
 PWD=$(shell pwd)
 SERVICE=eater-svc
 MIGRATION_PATH=${PWD}/src/infrastructure/migrations
-PROTOS_PATH=$(PWD)/src/infrastructure/protos
+PROTOS_PATH=src/infrastructure/protos
 pathI:
 	cd $(PWD)/src/infrastructure/protos/eater
 server:

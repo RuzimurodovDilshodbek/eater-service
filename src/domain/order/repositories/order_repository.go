@@ -12,5 +12,5 @@ type OrderRepository interface {
 	UpdateOrder(ctx context.Context, order *models.Order) error
 	GetOrderById(ctx context.Context, order_id string) (*models.Order, error)
 	ListOrderByEaterId(ctx context.Context, eater_id string) ([]*models.Order, error)
-	DeleteAddress(ctx context.Context, id string) error
+	DeletoOrder(ctx context.Context, id string) error
 }
